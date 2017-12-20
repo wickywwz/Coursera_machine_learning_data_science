@@ -1,0 +1,108 @@
+---
+title: "Prediction_Assignment"
+author: "Wenzhao Wu"
+date: "2017.12.20"
+output: html_document
+---
+
+
+## Project Objective
+
+One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. The objective of this project is to predict the manner in which the participants completed the exercise based on data collected from accelerometers on the belt, forearm, arm, and dumbell.
+
+## Methodology
+
+In this project,I use PCA to reduce the dimensionality of the data as there are some highly consolatory variables. A random forest classifier is then created to identify excercise type based on processed features.  
+
+
+## Training Procedure
+
+```{r,include=FALSE}
+library('caret')
+library('corrplot')
+library('randomForest')
+library('e1071')
+set.seed(12306)
+```
+
+
+Load training data, setting cells with empty space to be NA.
+
+```{r}
+train_df <- read.csv("pml-training.csv", na.strings=c("", "NA"))
+```
+
+Remove columns that won't be used as predictors
+
+```{r}
+train_df <- train_df[8:length(train_df)]
+remove_col <- colSums(is.na(train_df))
+train_df <- train_df[,remove_col==0]
+```
+
+Split the training set in 75% to train a classification algorithm and 25% to do validation.
+
+```{r}
+train_len <- createDataPartition(train_df$classe,p=0.75)[[1]]
+train_set <- train_df[train_len,]
+valid_set <- train_df[-train_len,]
+```
+
+Plot correlation matrix with the training data to assess if there were any highly correlated variables. 
+
+```{r, echo=FALSE}
+correlMatrix <- cor(train_set[, -length(train_set)])
+corrplot(correlMatrix, type = "lower", tl.cex = 0.8)
+```
+
+The circles indicate the level of correlation between different variables.The figure shows that there are some variables with high correlation. Therefore, PCA should be used before fitting the random forest model to eliminate these high correlations as well as reducing feature dimensions.
+
+```{r, echo=FALSE}
+rf_model <- randomForest(classe~., data=train_set, preprocessing="pca")
+print(rf_model)
+```
+
+
+##Validation##
+
+Use the splited validation data to evaluate current model.The confusion matrix estimates the performance of the model on validation data. It shows that the accuracy is 99.76% with 95% confidence intervals of 0.9957 and 0.9987. The out of sample error 0.23%. This highly accurate result indicats that random forest could be a good model for our problem.
+
+```{r, echo=FALSE}
+val_result <- predict(rf_model,valid_set)
+confusionMatrix(valid_set$classe, val_result)
+```
+
+
+##Testing##
+
+Now let's use our model to predict excercise classes in testing data.
+
+```{r}
+#Apply same processing procedure as training set
+test_set <- read.csv("pml-testing.csv", na.strings=c("", "NA"))
+test_set <- test_set[8:length(test_set)]
+test_set <- test_set[,remove_col==0]
+#Fit our model to testing data
+test_result <- predict(rf_model,test_set)
+print(test_result)
+```
+
+##Result and conclusion##
+
+The test result receives a score of 20/20 when submitting to the prediction quiz. Hence, we can conclude that random forest classifier provides very good prediction of weight lifting style as measured with accelerometers.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
