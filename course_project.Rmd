@@ -57,23 +57,26 @@ corrplot(correlMatrix, type = "lower", tl.cex = 0.8)
 
 The circles indicate the level of correlation between different variables.The figure shows that there are some variables with high correlation. Therefore, PCA should be used before fitting the random forest model to eliminate these high correlations as well as reducing feature dimensions.
 
-```{r echo=FALSE}
+```{r, echo=FALSE}
 rf_model <- randomForest(classe~., data=train_set, preprocessing="pca")
 print(rf_model)
 ```
 
-##Validation
+
+##Validation##
 
 Use the splited validation data to evaluate current model.The confusion matrix estimates the performance of the model on validation data. It shows that the accuracy is 99.76% with 95% confidence intervals of 0.9957 and 0.9987. The out of sample error 0.23%. This highly accurate result indicats that random forest could be a good model for our problem.
 
-```{r echo=FALSE}
+```{r, echo=FALSE}
 val_result <- predict(rf_model,valid_set)
 confusionMatrix(valid_set$classe, val_result)
 ```
 
-##Testing
+
+##Testing##
 
 Now let's use our model to predict excercise classes in testing data.
+
 ```{r}
 #Apply same processing procedure as training set
 test_set <- read.csv("pml-testing.csv", na.strings=c("", "NA"))
@@ -84,7 +87,7 @@ test_result <- predict(rf_model,test_set)
 print(test_result)
 ```
 
-##Result and conclusion
+##Result and conclusion##
 
 The test result receives a score of 20/20 when submitting to the prediction quiz. Hence, we can conclude that random forest classifier provides very good prediction of weight lifting style as measured with accelerometers.
 
