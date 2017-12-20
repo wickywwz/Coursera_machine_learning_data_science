@@ -11,10 +11,12 @@ output: html_document
 One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. The objective of this project is to predict the manner in which the participants completed the exercise based on data collected from accelerometers on the belt, forearm, arm, and dumbell.
 
 ## Methodology
+
 In this project,I use PCA to reduce the dimensionality of the data as there are some highly consolatory variables. A random forest classifier is then created to identify excercise type based on processed features.  
 
 
 ## Training Procedure
+
 ```{r,include=FALSE}
 library('caret')
 library('corrplot')
@@ -61,13 +63,16 @@ print(rf_model)
 ```
 
 ##Validation
+
 Use the splited validation data to evaluate current model.The confusion matrix estimates the performance of the model on validation data. It shows that the accuracy is 99.76% with 95% confidence intervals of 0.9957 and 0.9987. The out of sample error 0.23%. This highly accurate result indicats that random forest could be a good model for our problem.
+
 ```{r echo=FALSE}
 val_result <- predict(rf_model,valid_set)
 confusionMatrix(valid_set$classe, val_result)
 ```
 
 ##Testing
+
 Now let's use our model to predict excercise classes in testing data.
 ```{r}
 #Apply same processing procedure as training set
@@ -80,6 +85,7 @@ print(test_result)
 ```
 
 ##Result and conclusion
+
 The test result receives a score of 20/20 when submitting to the prediction quiz. Hence, we can conclude that random forest classifier provides very good prediction of weight lifting style as measured with accelerometers.
 
 
